@@ -2,14 +2,14 @@ server:
   port: 8081
 spring:
   application:
-    name: hmdp
+    name: techConneect
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://localhost:3306/review_connect
     username: root
     password: password
   redis:
-    host: 192.168.81.144
+    host: 192.168.81.168
     port: 6379
     #password: 123321
     lettuce:
