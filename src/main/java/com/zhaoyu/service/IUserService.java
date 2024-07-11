@@ -5,6 +5,7 @@ import com.zhaoyu.dto.LoginFormDTO;
 import com.zhaoyu.dto.Result;
 import com.zhaoyu.entity.User;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -22,4 +23,6 @@ public interface IUserService extends IService<User> {
     Result login(LoginFormDTO loginForm, HttpSession session);
 
     Result sendCode(String phone, HttpSession session);
+
+    Result logout(HttpServletRequest request);
 }

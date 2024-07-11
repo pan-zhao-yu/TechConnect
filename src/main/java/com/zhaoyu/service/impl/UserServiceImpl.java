@@ -13,11 +13,13 @@ import com.zhaoyu.entity.User;
 import com.zhaoyu.mapper.UserMapper;
 import com.zhaoyu.service.IUserService;
 import com.zhaoyu.utils.RegexUtils;
+import com.zhaoyu.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import java.util.HashMap;
@@ -111,5 +113,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 2.保存用户
         save(user);
         return user;
+    }
+
+    public Result logout(HttpServletRequest request){
+        String token = request.getHeader("authorization");
+        stringRedisTemplate.delete(LOGIN_USER_KEY + token);
+        UserHolder.removeUser();
+        return Result.ok();
     }
 }
