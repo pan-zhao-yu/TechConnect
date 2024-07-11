@@ -1,10 +1,19 @@
 package com.zhaoyu.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhaoyu.dto.Result;
 import com.zhaoyu.entity.ShopType;
 import com.zhaoyu.mapper.ShopTypeMapper;
 import com.zhaoyu.service.IShopTypeService;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+import static com.zhaoyu.utils.RedisConstants.CACHE_SHOP_TYPE_LIST_KEY;
 
 /**
  * <p>
@@ -17,4 +26,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> implements IShopTypeService {
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Override
+    public Result queryShopType() {
+        String shopTypeJson =  stringRedisTemplate.opsForValue().get(CACHE_SHOP_TYPE_LIST_KEY);
+        if(StrUtil.isNotBlank(shopTypeJson)){
+            List<ShopType> shopTypes = JSONUtil.toList(shopTypeJson, ShopType.class);
+            return Result.ok(shopTypes);
+        }
+        List<ShopType> shopTypes = query().orderByAsc("sort").list();
+        if(shopTypes == null){
+            return Result.fail("shop type not found");
+        }
+        stringRedisTemplate.opsForValue().set(CACHE_SHOP_TYPE_LIST_KEY, JSONUtil.toJsonStr(shopTypes));
+        return Result.ok(shopTypes);
+    }
 }
