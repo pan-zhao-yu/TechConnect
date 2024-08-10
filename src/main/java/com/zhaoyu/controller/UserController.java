@@ -36,7 +36,7 @@ public class UserController {
     /**
      * 发送手机验证码
      */
-    @PostMapping("code")
+    @PostMapping("/code")
     public Result sendCode(@RequestParam("phone") String phone, HttpSession session) {
         return userService.sedCode(phone,session);
     }
@@ -81,4 +81,16 @@ public class UserController {
         // 返回
         return Result.ok(info);
     }
+
+    @GetMapping("/{id}")
+    public Result queryUserById(Long id){
+        return userService.queryUserById(id);
+    }
+
+
+    @PostMapping("sign")
+    public Result sign(){
+        return userService.sign();
+    }
+
 }

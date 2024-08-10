@@ -10,6 +10,7 @@ import com.zhaoyu.entity.User;
 import com.zhaoyu.mapper.UserMapper;
 import com.zhaoyu.service.IUserService;
 import com.zhaoyu.utils.RegexUtils;
+import com.zhaoyu.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,11 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import static com.zhaoyu.utils.SystemConstants.USER_NICK_NAME_PREFIX;
+import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
 
 /**
  * <p>
@@ -50,6 +55,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //5. 发送验证码
         log.debug("发送短信验证码成功，验证码:{}",code);
         //返回ok
+        return Result.ok();
+    }
+
+    @Override
+    public Result queryUserById(Long id) {
+        User usesr = getById(id);
+        if(user == null){
+            return Result.ok();
+        }
+        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
+        return Result.ok(userDTO);
+    }
+
+    @Override
+    public Result sign() {
+        //get user
+        Long userId = UserHolder.getUser().getId();
+        //get date
+        LocalDateTime now = LocalDateTime.now();
+        String suffix = now.format(DateTimeFormatter.ofPattern("yyyymm"));
+        //get key
+        String prefix = "sign:";
+        String key = prefix + suffix;
+        //get today offset
+        int dayOfMonth = now.getDayOfMonth();
+        //save to redis
+        stringRedisTemplate.opsForValue().setBit(key, dayOfMonth - 1, true);
         return Result.ok();
     }
 
